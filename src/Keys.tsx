@@ -62,11 +62,10 @@ export function Keys(props: { initialData: IItem[]; sorting: 'ASC' | 'DESC' }) {
   return (
     <div>
       {(Object.values(text).map((item: any, index: number) => (
-        <>
+        <React.Fragment key={item.id}>
           {
             inputs[index].change
               ? <input
-                key={item.id}
                 id={`${index}`}
                 type="text"
                 defaultValue={inputs[index].name}
@@ -75,13 +74,12 @@ export function Keys(props: { initialData: IItem[]; sorting: 'ASC' | 'DESC' }) {
                 onKeyUp={keyUpHandler}
               />
               : <span
-                key={item.id}
                 id={`${index}`}
                 onClick={textHandler}
               >{item.name}</span>
           }
           <br/>
-        </>
+        </React.Fragment>
       )))
       }
     </div>
