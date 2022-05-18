@@ -30,22 +30,25 @@ export function Keys(props: { initialData: IItem[]; sorting: 'ASC' | 'DESC' }) {
     }
   }
 
-  useMemo(() => {
+  interface SortItem extends IItem{
+    change: boolean;
+  }
+
+  const sortedText = useMemo(() => {
     if (props.sorting === 'ASC') {
-      text.sort((a, b) => a.id > b.id ? 1 : -1)//?
+      return text.sort((a, b) => a.id > b.id ? 1 : -1)
     }
     if (props.sorting === 'DESC') {
-      setText(text.sort((a, b) => a.id < b.id ? 1 : -1))//?
+      return text.sort((a, b) => a.id < b.id ? 1 : -1)
     }
-  }, [props.sorting])
+  }, [props.sorting, text]) as SortItem[]
 
   return (
     <ul>
-      {text.map((item, index) => (
+      {sortedText.map((item, index) => (
         <li key={item.id}>{
           item.change
-            ? <input id={`${index}`} type="text" defaultValue={item.name} onKeyPress={keyPressHandler}
-                     onKeyUp={keyUpHandler}/>
+            ? <input id={`${index}`} type="text" defaultValue={item.name} onKeyPress={keyPressHandler} onKeyUp={keyUpHandler}/>
             : <span id={`${index}`} onClick={textHandler}>{item.name}</span>
         }</li>
       ))}
