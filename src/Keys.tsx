@@ -1,87 +1,54 @@
-import React, {useLayoutEffect} from 'react';
+import React, {useState, useMemo} from 'react';
 import {IItem} from './index';
-import {useState, useRef} from "react";
 
 export function Keys(props: { initialData: IItem[]; sorting: 'ASC' | 'DESC' }) {
-  const [text, setText] = useState({
-    ...props.initialData
-  })
+  const initialData = props.initialData;
 
-  const [inputs, setInputs] = useState({
-    ...props.initialData.map(item => {
-      return {name: item.name, change: false}
-    })
-  })
+  const [text, setText] = useState(initialData.map(item => {
+    return {name: item.name, id: item.id, change: false}
+  }))
 
   const textHandler = (event: any) => {
-    setInputs(inputs => ({
-      ...inputs,
-      [event.target.id]: {name: inputs[event.target.id].name, change: true}
-    }))
-  }
-
-  const inputHandler = (event: any) => {
-    setInputs(inputs => ({
-      ...inputs,
-      [event.target.id]: {name: event.target.value, change: true}
-    }))
+    const arr = text;
+    arr[event.target.id] = {name: arr[event.target.id].name, id: arr[event.target.id].id, change: true}
+    setText([...arr])
   }
 
   const keyPressHandler = (event: any) => {
     if (event.key === 'Enter') {
-      setText(text => ({
-        ...text,
-        [event.target.id]: {name: event.target.value, id: event.target.id}
-      }))
-      setInputs(inputs => ({
-        ...inputs,
-        [event.target.id]: {name: event.target.value, change: false}
-      }))
+      const arr = text;
+      arr[event.target.id] = {name: event.target.value, id: arr[event.target.id].id, change: false}
+      setText([...arr])
     }
   }
 
   const keyUpHandler = (event: any) => {
     if (event.key === 'Escape') {
-      setInputs(inputs => ({
-        ...inputs,
-        [event.target.id]: {name: text[event.target.id].name, change: false}
-      }))
+      const arr = text;
+      arr[event.target.id] = {name: arr[event.target.id].name, id: arr[event.target.id].id, change: false}
+      setText([...arr])
     }
   }
 
-  const firstUpdate = useRef(true);
-  useLayoutEffect(() => {
-    if (firstUpdate.current) {
-      firstUpdate.current = false;
-      return;
+  useMemo(() => {
+    if (props.sorting === 'ASC') {
+      text.sort((a, b) => a.id > b.id ? 1 : -1)//?
     }
-    setText({...Object.keys(text).reverse().map(key => text[+key])})
-    setInputs({...Object.keys(inputs).reverse().map(key => inputs[+key])})
+    if (props.sorting === 'DESC') {
+      setText(text.sort((a, b) => a.id < b.id ? 1 : -1))//?
+    }
   }, [props.sorting])
 
   return (
-    <div>
-      {(Object.values(text).map((item: any, index: number) => (
-        <React.Fragment key={item.id}>
-          {
-            inputs[index].change
-              ? <input
-                id={`${index}`}
-                type="text"
-                defaultValue={inputs[index].name}
-                onChange={inputHandler}
-                onKeyPress={keyPressHandler}
-                onKeyUp={keyUpHandler}
-              />
-              : <span
-                id={`${index}`}
-                onClick={textHandler}
-              >{item.name}</span>
-          }
-          <br/>
-        </React.Fragment>
-      )))
-      }
-    </div>
+    <ul>
+      {text.map((item, index) => (
+        <li key={item.id}>{
+          item.change
+            ? <input id={`${index}`} type="text" defaultValue={item.name} onKeyPress={keyPressHandler}
+                     onKeyUp={keyUpHandler}/>
+            : <span id={`${index}`} onClick={textHandler}>{item.name}</span>
+        }</li>
+      ))}
+    </ul>
   );
 }
